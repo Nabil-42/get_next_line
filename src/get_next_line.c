@@ -37,8 +37,8 @@ int		searchn(char *str)
 static char	*exctract(char *str)
 {
 	static int		i = 0;
-	char	*rendu = NULL;
 	int		j;
+	char	*rendu;
 
 	j = 0;
 	while (1)
@@ -56,20 +56,18 @@ static char	*exctract(char *str)
 	return (rendu);
 }
 
-char	*stash(char *str)
+static char	*stash(char *str)
 {
-	static char		*stock = NULL;
-	static char 	*final = NULL;
+	static char		*stock;
+	static char 	*final;
 
 	if (!final)
 	{
-		final = ft_strjoin("", str);
-        if (!final)
-            return (NULL);
+		final = (char *)malloc(sizeof(char) * (ft_strlen(str) + 1));
+		ft_strlcpy(final, str, ft_strlen(str) + 1);
 	}
 	else{
 		stock = ft_strjoin(final, str);
-		free(final);
 		final = stock;
 	}
 	return (final);
@@ -79,34 +77,28 @@ char	*stash(char *str)
 
  char	*get_next_line(int fd)
 {
-	static char	*str = NULL;
-	static char	*buff = NULL;
-	static int		j = 0;
-	static int 		k = 0;
+	static char	*str;
+	static char	*buff;
 	int		n;
-	
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return (NULL);
+	static int		j = 0;
+
 	n = 0;
+	
 	str = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if(!str)
 	{
 		return(NULL);
-		free(str);
 	}
 
 	while(1)
 	{
 		if (j == 0)
 		{
-			++k;
 			n = read(fd, str, BUFFER_SIZE);
-			if(n <= 0)
-			{
-				free (str);
+		
+			if(n == 0)
 				return (NULL);
-			}
-			buff = (char *)malloc(sizeof(char) * (BUFFER_SIZE * k + 1));
+
 			buff = stash(str);
 			j = searchn(str);
 		}
@@ -117,17 +109,18 @@ char	*stash(char *str)
 	}
 	return (NULL);
 }
-// int	main()
-// {
-// 	int fd;
-// 	int i;
 
-// 	i = 0;
-// 	fd = open("texte.txt", O_RDONLY);
-// 	printf("la phrase = %s\n", get_next_line(fd));
-// 	printf("la phrase = %s\n", get_next_line(fd));
-// 	printf("la phrase = %s\n", get_next_line(fd));
-// 	printf("la phrase = %s\n", get_next_line(fd));
+int	main()
+{
+	int fd;
+	int i;
 
-// 	close(fd);
-// }
+	i = 0;
+	fd = open("texte.txt", O_RDONLY);
+	printf("la phrase = %s\n", get_next_line(fd));
+	printf("la phrase = %s\n", get_next_line(fd));
+	printf("la phrase = %s\n", get_next_line(fd));
+	printf("la phrase = %s\n", get_next_line(fd));
+
+	close(fd);
+}
